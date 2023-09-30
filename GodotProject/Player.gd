@@ -1,4 +1,8 @@
+# 2023-09-29
 extends CharacterBody2D 
+
+# Helpful Video: 
+#   https://odysee.com/@obacodeprogramming:8/godot-tutorial-for-beginners:6
 
 var x_dir = 0
 var moving = false
