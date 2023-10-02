@@ -6,12 +6,13 @@ extends CharacterBody2D
 
 var x_dir = 0
 var moving = false
-var accel = 100
-var maxspeed = 125
-var friction = 50
+var accel = 50
+var maxspeed = 250
+var friction = 500
 
 var y_dir = 0
 var jumping = false
+var falling = true
 var jump_speed = 1000
 var gravity = 250
 
@@ -26,22 +27,23 @@ func _ready():
 
 func _physics_process(delta):
 	## Controls ##
+	
 	# Movement
 	if Input.is_action_pressed("ui_left"): 
-		moving = true
-		velocity.x += -accel * delta
-		
+		velocity.x += -accel #* delta
 	if Input.is_action_pressed("ui_right"):
-		moving = true 
-		velocity.x += accel * delta
-		
+		velocity.x += accel #* delta
+	
+	# Jump
 	if Input.is_action_pressed("ui_up"): 
-		if !jumping:
+		if !jumping && !falling:
 			jumping = true
-			velocity.y += -jump_speed * delta
-			
-	if Input.is_action_pressed("ui_down"): 
-		velocity.y += accel * delta
+			velocity.y = -jump_speed #* delta
+			print_debug(str(velocity.y))
+	
+	# Crouch
+	#if Input.is_action_pressed("ui_down"): 
+	#	velocity.y += accel #* delta
 		
 	# Combat
 	#TBD
@@ -54,31 +56,36 @@ func _physics_process(delta):
 		if round(velocity.x) == 0:
 			velocity.x = 0
 			x_dir = 0
-			moving = false
 	
 	## Gravity ##
 	
-	if velocity.y != 0:
-		y_dir = velocity.y / abs(velocity.y)
-		if round(velocity.y) == 0:
-			velocity.y = 0
-			y_dir = 0
+	if round(velocity.y) == 0:
 		if jumping:
-			velocity.y -= gravity * -x_dir * delta
-	else:
-		jumping = false
-		
+			jumping = false
+			falling = true
+		elif falling:
+			falling = false
+	
+	velocity.y += gravity * delta
+	
 	## Speed Limits ##
 	
 	if abs(velocity.x) > maxspeed:
 		velocity.x = maxspeed * x_dir
-		
+	
 	if abs(velocity.y) > maxspeed:
 		velocity.y = maxspeed * y_dir
 	
 	move_and_slide()
 	
-	print_debug("X Dir = " + str(x_dir) + ", X Speed = " + str(velocity.x))
-	print_debug("Y Dir = " + str(y_dir) + ", Y Speed = " + str(velocity.y))
+	print_debug(
+		"X Dir = " + str(x_dir) 
+		+ ", X Speed = " + str(velocity.x)
+		+ "\n"
+		+ "Y Dir = " + str(y_dir) 
+		+ ", Y Speed = " + str(velocity.y) 
+		+ ", Jumping is " + str(jumping) 
+		+ ", Falling is " + str(falling)
+	)
 	
 	pass
